@@ -14,7 +14,7 @@ services:
     networks:
       - my-network-overlay
     deploy:
-      replicas: 3
+      replicas: 1
       resources:
         limits:
           cpus: "1.0"
@@ -56,12 +56,14 @@ services:
 
   process-queue:
     image: process-queue:latest
+    ports:
+      - "3002:3000"
     networks:
       - my-network-overlay
     environment:
       MONGO_URI: mongodb://mongodb:27017/nest
     deploy:
-      replicas: 3
+      replicas: 1
       resources:
         limits:
           cpus: "1.0"
