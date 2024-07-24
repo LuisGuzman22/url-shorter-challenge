@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   app:
-    image: url-shorter:latest # Utiliza la imagen construida
+    image: url-shorter:latest
     ports:
       - "3001:3000"
     depends_on:
@@ -17,10 +17,16 @@ services:
       replicas: 3
       resources:
         limits:
-          cpus: "0.50"
-          memory: 512M
+          cpus: "1.0"
+          memory: "1G"
+        reservations:
+          cpus: "0.5"
+          memory: "512M"
       restart_policy:
         condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
 
   redis:
     image: redis:alpine
@@ -28,6 +34,11 @@ services:
       - "6379:6379"
     networks:
       - my-network-overlay
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "512M"
 
   mongodb:
     image: mongo:latest
@@ -37,22 +48,32 @@ services:
       - mongo_data:/data/db
     networks:
       - my-network-overlay
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "1024M"
 
   process-queue:
-    image: process-queue:latest # Utiliza la imagen construida
+    image: process-queue:latest
     networks:
       - my-network-overlay
     environment:
       MONGO_URI: mongodb://mongodb:27017/nest
     deploy:
-      replicas: 2
+      replicas: 3
       resources:
         limits:
-          cpus: "0.50"
-          memory: 512M
+          cpus: "1.0"
+          memory: "1G"
+        reservations:
+          cpus: "0.5"
+          memory: "512M"
       restart_policy:
         condition: on-failure
-
+        delay: 5s
+        max_attempts: 3
+        window: 120s
 networks:
   my-network-overlay:
     driver: overlay
